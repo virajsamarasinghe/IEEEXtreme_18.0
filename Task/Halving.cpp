@@ -1,5 +1,3 @@
-//Task Score: 30%
-//Did you do more than us committe to it in this repo
 #include <iostream>
 #include <vector>
 #include <map>
@@ -12,52 +10,50 @@ int n;
 vector<int> c, r, b;
 map<pair<int, vector<int>>, int> memo;
 
-int solve(int pos, vector<int>& remaining) {
-    if(pos == n) return 1;
+int f(int p, vector<int>& rem) {
+    if(p == n) return 1;
     
-    pair<int, vector<int>> state = {pos, remaining};
-    if(memo.count(state)) return memo[state];
+    pair<int, vector<int>> st = {p, rem};
+    if(memo.count(st)) return memo[st];
     
-    int result = 0;
-    int pos2 = 2 * pos;
+    int res = 0;
+    int p2 = 2 * p;
     
-    // Get available numbers for first position
     vector<int> nums1;
-    if(c[pos2] != -1) nums1 = {c[pos2]};
-    else nums1 = remaining;
+    if(c[p2] != -1) nums1 = {c[p2]};
+    else nums1 = rem;
     
-    for(int num1 : nums1) {
-        if(c[pos2] != -1 && c[pos2] != num1) continue;
+    for(int n1 : nums1) {
+        if(c[p2] != -1 && c[p2] != n1) continue;
         
-        // Get available numbers for second position
         vector<int> nums2;
-        if(c[pos2 + 1] != -1) nums2 = {c[pos2 + 1]};
+        if(c[p2 + 1] != -1) nums2 = {c[p2 + 1]};
         else {
-            nums2 = remaining;
-            if(find(nums2.begin(), nums2.end(), num1) != nums2.end())
-                nums2.erase(find(nums2.begin(), nums2.end(), num1));
+            nums2 = rem;
+            if(find(nums2.begin(), nums2.end(), n1) != nums2.end())
+                nums2.erase(find(nums2.begin(), nums2.end(), n1));
         }
         
-        for(int num2 : nums2) {
-            if(c[pos2 + 1] != -1 && c[pos2 + 1] != num2) continue;
-            if(num1 == num2) continue;
+        for(int n2 : nums2) {
+            if(c[p2 + 1] != -1 && c[p2 + 1] != n2) continue;
+            if(n1 == n2) continue;
             
-            int mn = min(num1, num2);
-            int mx = max(num1, num2);
+            int mn = min(n1, n2);
+            int mx = max(n1, n2);
             
-            if((r[pos] == 0 && b[pos] == mn) || (r[pos] == 1 && b[pos] == mx)) {
-                vector<int> new_remaining = remaining;
-                if(c[pos2] == -1)
-                    new_remaining.erase(find(new_remaining.begin(), new_remaining.end(), num1));
-                if(c[pos2 + 1] == -1)
-                    new_remaining.erase(find(new_remaining.begin(), new_remaining.end(), num2));
+            if((r[p] == 0 && b[p] == mn) || (r[p] == 1 && b[p] == mx)) {
+                vector<int> new_rem = rem;
+                if(c[p2] == -1)
+                    new_rem.erase(find(new_rem.begin(), new_rem.end(), n1));
+                if(c[p2 + 1] == -1)
+                    new_rem.erase(find(new_rem.begin(), new_rem.end(), n2));
                 
-                result = (result + solve(pos + 1, new_remaining)) % MOD;
+                res = (res + f(p + 1, new_rem)) % MOD;
             }
         }
     }
     
-    return memo[state] = result;
+    return memo[st] = res;
 }
 
 int main() {
@@ -69,7 +65,7 @@ int main() {
     r.resize(n);
     b.resize(n);
     
-    vector<int> remaining;
+    vector<int> rem;
     vector<bool> used(2 * n + 1, false);
     
     for(int i = 0; i < 2 * n; i++) {
@@ -78,13 +74,13 @@ int main() {
     }
     
     for(int i = 1; i <= 2 * n; i++) {
-        if(!used[i]) remaining.push_back(i);
+        if(!used[i]) rem.push_back(i);
     }
     
     for(int i = 0; i < n; i++) cin >> r[i];
     for(int i = 0; i < n; i++) cin >> b[i];
     
-    cout << solve(0, remaining) << endl;
+    cout << f(0, rem) << endl;
     
     return 0;
 }

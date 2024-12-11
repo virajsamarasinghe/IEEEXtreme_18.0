@@ -1,18 +1,21 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <functional>
+#include <iomanip>
 using namespace std;
 
-union FloatBits {
+union F {
     float f;
     uint32_t i;
-
-    FloatBits() : i(0) {}
+    F() : i(0) {}
 };
 
-uint32_t nandOperation(uint32_t a, uint32_t b) {
+uint32_t nandOp(uint32_t a, uint32_t b) {
     return ~(a & b);
 }
 
-float fmaOperation(float a, float b, float c) {
+float fmaOp(float a, float b, float c) {
     return fmaf(a, b, c);
 }
 
@@ -24,21 +27,21 @@ int main() {
     cin >> T;
     
     while (T--) {
-        string initialHex;
-        cin >> initialHex;
+        string h;
+        cin >> h;
         
-        FloatBits C0;
-        C0.i = stoul(initialHex, nullptr, 16);
+        F C;
+        C.i = stoul(h, nullptr, 16);
         
         int L;
         cin >> L;
-        vector<vector<FloatBits>> luts(L);
+        vector<vector<F>> luts(L);
         
         for (int i = 0; i < L; i++) {
-            int size;
-            cin >> size;
-            luts[i].resize(size);
-            for (int j = 0; j < size; j++) {
+            int s;
+            cin >> s;
+            luts[i].resize(s);
+            for (int j = 0; j < s; j++) {
                 string hex;
                 cin >> hex;
                 luts[i][j].i = stoul(hex, nullptr, 16);
@@ -47,44 +50,41 @@ int main() {
         
         int Q;
         cin >> Q;
-        vector<FloatBits> values;
-        values.push_back(C0);
+        vector<F> vals = {C};
         
         for (int i = 0; i < Q; i++) {
             string cmd;
             cin >> cmd;
             
-            FloatBits result;
+            F res;
             
             if (cmd == "L") {
-                int lutIndex, j, b;
-                cin >> lutIndex >> j >> b;
-                
-                uint32_t mask = (values[0].i >> j) & ((1u << b) - 1);
-                result = luts[lutIndex][mask];
+                int li, j, b;
+                cin >> li >> j >> b;
+                uint32_t mask = (vals[0].i >> j) & ((1u << b) - 1);
+                res = luts[li][mask];
                 
             } else if (cmd == "N") {
                 int i1, i2;
                 cin >> i1 >> i2;
-                result.i = nandOperation(values[i1].i, values[i2].i);
+                res.i = nandOp(vals[i1].i, vals[i2].i);
                 
             } else if (cmd == "F") {
                 int i1, i2, i3;
                 cin >> i1 >> i2 >> i3;
-                result.f = fmaOperation(values[i1].f, values[i2].f, values[i3].f);
+                res.f = fmaOp(vals[i1].f, vals[i2].f, vals[i3].f);
                 
             } else if (cmd == "C") {
                 string hex;
                 cin >> hex;
-                result.i = stoul(hex, nullptr, 16);
+                res.i = stoul(hex, nullptr, 16);
             }
             
-            values.push_back(result);
+            vals.push_back(res);
         }
         
-        cout << hex << setfill('0') << setw(8) << values.back().i << endl;
+        cout << hex << setfill('0') << setw(8) << vals.back().i << endl;
     }
     
     return 0;
 }
-//100% marks

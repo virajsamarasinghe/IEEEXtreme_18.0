@@ -1,58 +1,56 @@
-//Task Score: 28%
-//Did you do more than us committe to it in this repo
 #include <iostream>
 #include <vector>
 #include <algorithm>
 
 using namespace std;
 
-long long computeHilbertOrder(int x, int y) {
-    long long hilbertOrder = 0;
+long long hilbertOrder(int x, int y) {
+    long long order = 0;
     int bits = 32;
 
     for (int s = bits - 1; s >= 0; s--) {
-        int bitX = (x >> s) & 1;
-        int bitY = (y >> s) & 1;
-        hilbertOrder += (1LL << (2 * s)) * ((3 * bitX) ^ bitY);
+        int bx = (x >> s) & 1;
+        int by = (y >> s) & 1;
+        order += (1LL << (2 * s)) * ((3 * bx) ^ by);
 
-        if (bitY == 0) {
-            if (bitX == 1) {
+        if (by == 0) {
+            if (bx == 1) {
                 x = (1 << (s + 1)) - 1 - x;
                 y = (1 << (s + 1)) - 1 - y;
             }
             swap(x, y);
         }
     }
-    return hilbertOrder;
+    return order;
 }
 
 int main() {
-    int numPoints;
-    cin >> numPoints;
+    int n;
+    cin >> n;
     
-    vector<pair<int, int>> points(numPoints);
-    vector<long long> hilbertOrders(numPoints);
-    vector<int> sortedIndices(numPoints);
+    vector<pair<int, int>> pts(n);
+    vector<long long> orders(n);
+    vector<int> indices(n);
     
-    for (int i = 0; i < numPoints; i++) {
+    for (int i = 0; i < n; i++) {
         int x, y;
         cin >> x >> y;
         
-        int adjustedX = x + 2147483648LL;
-        int adjustedY = y + 2147483648LL;
+        int adjX = x + 2147483648LL;
+        int adjY = y + 2147483648LL;
         
-        hilbertOrders[i] = computeHilbertOrder(adjustedX, adjustedY);
-        points[i] = {x, y};
-        sortedIndices[i] = i;
+        orders[i] = hilbertOrder(adjX, adjY);
+        pts[i] = {x, y};
+        indices[i] = i;
     }
 
-    sort(sortedIndices.begin(), sortedIndices.end(), [&](int a, int b) {
-        return hilbertOrders[a] < hilbertOrders[b];
+    sort(indices.begin(), indices.end(), [&](int a, int b) {
+        return orders[a] < orders[b];
     });
 
-    for (size_t i = 0; i < sortedIndices.size(); i += 3) {
-        for (size_t j = 0; j < 3 && (i + j) < sortedIndices.size(); ++j) {
-            cout << sortedIndices[i + j] << " ";
+    for (size_t i = 0; i < indices.size(); i += 3) {
+        for (size_t j = 0; j < 3 && (i + j) < indices.size(); ++j) {
+            cout << indices[i + j] << " ";
         }
         cout << endl;
     }

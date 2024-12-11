@@ -1,6 +1,3 @@
-//Task Score: 33%
-//Did you do more than us committe to it in this repo
-
 #include <iostream>
 #include <vector>
 #include <cstdio>
@@ -16,40 +13,40 @@ int main() {
         scanf("%d", &p[i]);
     }
 
-    vector<long long> arr(n + 1, 0);
+    vector<long long> a(n + 1, 0);
 
     for (int i = 0; i < q; i++) {
-        int type;
-        scanf("%d", &type);
+        int t;
+        scanf("%d", &t);
 
-        if (type == 0) {
+        if (t == 0) {
             int l, r, c;
             scanf("%d %d %d", &l, &r, &c);
             for (int j = l; j <= r; j++) {
-                arr[j] += c;
+                a[j] += c;
             }
-        } else if (type == 1) {
+        } else if (t == 1) {
             int l, r, c;
             scanf("%d %d %d", &l, &r, &c);
             for (int j = l; j <= r; j++) {
-                arr[p[j]] += c;
+                a[p[j]] += c;
             }
-        } else if (type == 2) {
+        } else if (t == 2) {
             int l, r;
             scanf("%d %d", &l, &r);
-            long long sum = 0;
+            long long s = 0;
             for (int j = l; j <= r; j++) {
-                sum += arr[j];
+                s += a[j];
             }
-            printf("%lld\n", sum);
-        } else { // type == 3
+            printf("%lld\n", s);
+        } else { // t == 3
             int l, r;
             scanf("%d %d", &l, &r);
-            long long sum = 0;
+            long long s = 0;
             for (int j = l; j <= r; j++) {
-                sum += arr[p[j]];
+                s += a[p[j]];
             }
-            printf("%lld\n", sum);
+            printf("%lld\n", s);
         }
     }
 

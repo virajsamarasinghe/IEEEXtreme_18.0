@@ -1,82 +1,76 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <functional>
 using namespace std;
 
 typedef long long ll;
 
-const int PRIME_BASE1 = 911;
-const int PRIME_BASE2 = 3571;
-const int MOD1 = 1000000007;
-const int MOD2 = 1000000009;
+const int PB1 = 911, PB2 = 3571, M1 = 1000000007, M2 = 1000000009;
 
 int main() {
     ios::sync_with_stdio(false);
     cin.tie(0);
 
-    string input;
-    cin >> input;
-    int inputSize = input.length();
+    string s;
+    cin >> s;
+    int n = s.length();
 
-    vector<int> hashPrefix1(inputSize + 1, 0);
-    vector<int> hashPrefix2(inputSize + 1, 0);
-    vector<ll> powerBase1Values(inputSize + 1, 1);
-    vector<ll> powerBase2Values(inputSize + 1, 1);
+    vector<int> h1(n + 1, 0), h2(n + 1, 0);
+    vector<ll> p1(n + 1, 1), p2(n + 1, 1);
 
-    for (int i = 0; i < inputSize; i++) {
-        hashPrefix1[i + 1] = (1LL * hashPrefix1[i] * PRIME_BASE1 + (input[i] - 'a' + 1)) % MOD1;
-        hashPrefix2[i + 1] = (1LL * hashPrefix2[i] * PRIME_BASE2 + (input[i] - 'a' + 1)) % MOD2;
-        if (i < inputSize - 1) {
-            powerBase1Values[i + 1] = (powerBase1Values[i] * PRIME_BASE1) % MOD1;
-            powerBase2Values[i + 1] = (powerBase2Values[i] * PRIME_BASE2) % MOD2;
+    for (int i = 0; i < n; i++) {
+        h1[i + 1] = (1LL * h1[i] * PB1 + (s[i] - 'a' + 1)) % M1;
+        h2[i + 1] = (1LL * h2[i] * PB2 + (s[i] - 'a' + 1)) % M2;
+        if (i < n - 1) {
+            p1[i + 1] = (p1[i] * PB1) % M1;
+            p2[i + 1] = (p2[i] * PB2) % M2;
         }
     }
 
-    vector<ll> maxPower26(inputSize + 1, 1);
-    for (int length = 1; length <= inputSize; length++) {
-        if (maxPower26[length - 1] <= 1e12 / 26) {
-            maxPower26[length] = maxPower26[length - 1] * 26;
+    vector<ll> maxP(n + 1, 1);
+    for (int len = 1; len <= n; len++) {
+        if (maxP[len - 1] <= 1e12 / 26) {
+            maxP[len] = maxP[len - 1] * 26;
         } else {
-            maxPower26[length] = 1e12;
+            maxP[len] = 1e12;
         }
     }
 
-    vector<int> minSubLen(inputSize + 1, INT32_MAX);
+    vector<int> minLen(n + 1, INT32_MAX);
 
-    for (int length = 1; length <= inputSize; length++) {
-        vector<pair<ll, int>> hashGroups;
-        hashGroups.reserve(inputSize - length + 1);
-        for (int i = 0; i <= inputSize - length; i++) {
-            ll subHash1 = (hashPrefix1[i + length] - (1LL * hashPrefix1[i] * powerBase1Values[length]) % MOD1 + MOD1) % MOD1;
-            ll subHash2 = (hashPrefix2[i + length] - (1LL * hashPrefix2[i] * powerBase2Values[length]) % MOD2 + MOD2) % MOD2;
-            ll combinedHash = (subHash1 << 32) | subHash2;
-            hashGroups.emplace_back(combinedHash, i);
+    for (int len = 1; len <= n; len++) {
+        vector<pair<ll, int>> hashes;
+        hashes.reserve(n - len + 1);
+        for (int i = 0; i <= n - len; i++) {
+            ll h1_val = (h1[i + len] - (1LL * h1[i] * p1[len]) % M1 + M1) % M1;
+            ll h2_val = (h2[i + len] - (1LL * h2[i] * p2[len]) % M2 + M2) % M2;
+            ll combined = (h1_val << 32) | h2_val;
+            hashes.emplace_back(combined, i);
         }
 
-        sort(hashGroups.begin(), hashGroups.end());
+        sort(hashes.begin(), hashes.end());
 
-        int uniqueGroupCount = 0;
-        int groupTotal = hashGroups.size();
-        int idx = 0;
-
-        while (idx < groupTotal) {
-            ll currentHash = hashGroups[idx].first;
+        int uniqueCount = 0, total = hashes.size(), idx = 0;
+        while (idx < total) {
+            ll currHash = hashes[idx].first;
             int nextIdx = idx;
-            while (nextIdx < groupTotal && hashGroups[nextIdx].first == currentHash) {
+            while (nextIdx < total && hashes[nextIdx].first == currHash) {
                 nextIdx++;
             }
             int groupSize = nextIdx - idx;
-            uniqueGroupCount++;
+            uniqueCount++;
 
             vector<int> startPos;
             startPos.reserve(groupSize);
             for (int j = idx; j < nextIdx; j++) {
-                startPos.push_back(hashGroups[j].second);
+                startPos.push_back(hashes[j].second);
             }
             sort(startPos.begin(), startPos.end());
 
-            int coverage = 0;
-            int lastEnd = -1;
+            int coverage = 0, lastEnd = -1;
             for (auto &start : startPos) {
-                int end = start + length - 1;
+                int end = start + len - 1;
                 if (start > lastEnd) {
                     coverage += (end - start);
                 } else {
@@ -85,27 +79,25 @@ int main() {
                 lastEnd = max(lastEnd, end);
             }
 
-            int remainingChars = inputSize - coverage;
-            if (remainingChars >= 1 && remainingChars <= inputSize) {
-                minSubLen[remainingChars] = min(minSubLen[remainingChars], length);
+            int rem = n - coverage;
+            if (rem >= 1 && rem <= n) {
+                minLen[rem] = min(minLen[rem], len);
             }
             idx = nextIdx;
         }
 
-        if (uniqueGroupCount < maxPower26[length]) {
-            minSubLen[inputSize] = min(minSubLen[inputSize], length);
+        if (uniqueCount < maxP[len]) {
+            minLen[n] = min(minLen[n], len);
         }
     }
 
-    for (int k = 1; k <= inputSize; k++) {
-        if (minSubLen[k] == INT32_MAX) {
-            minSubLen[k] = 0;
+    for (int k = 1; k <= n; k++) {
+        if (minLen[k] == INT32_MAX) {
+            minLen[k] = 0;
         }
     }
 
-    for (int k = 1; k <= inputSize; k++) {
-        cout << minSubLen[k] << (k == inputSize ? '\n' : ' ');
+    for (int k = 1; k <= n; k++) {
+        cout << minLen[k] << (k == n ? '\n' : ' ');
     }
 }
-
-//100% marks

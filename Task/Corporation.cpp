@@ -1,5 +1,3 @@
-//Task Score: 30%
-//Did you do more than us committe to it in this repo
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -10,8 +8,8 @@ using ll = long long;
 
 class Solution {
     int N;
-    vector<ll> salary;
-    vector<int> happiness;
+    vector<ll> sal;
+    vector<int> hap;
     
     ll gcd(ll a, ll b) {
         while (b) {
@@ -27,33 +25,33 @@ class Solution {
     }
     
 public:
-    Solution(int n, vector<ll>& initial_salary) : N(n) {
-        salary = initial_salary;
-        happiness.resize(N, 0);
+    Solution(int n, vector<ll>& init_sal) : N(n) {
+        sal = init_sal;
+        hap.resize(N, 0);
     }
     
     void setSalary(int l, int r, ll c) {
         for(int i = l-1; i < r; i++) {
-            ll old_salary = salary[i];
-            salary[i] = c;
-            if(old_salary < c) happiness[i]++;
-            else if(old_salary > c) happiness[i]--;
+            ll old_sal = sal[i];
+            sal[i] = c;
+            if(old_sal < c) hap[i]++;
+            else if(old_sal > c) hap[i]--;
         }
     }
     
     void changeSalary(int l, int r, ll c) {
         for(int i = l-1; i < r; i++) {
-            ll old_salary = salary[i];
-            salary[i] += c;
-            if(c > 0) happiness[i]++;
-            else if(c < 0) happiness[i]--;
+            ll old_sal = sal[i];
+            sal[i] += c;
+            if(c > 0) hap[i]++;
+            else if(c < 0) hap[i]--;
         }
     }
     
     pair<ll, ll> querySalary(int l, int r) {
         ll sum = 0;
         for(int i = l-1; i < r; i++) {
-            sum += salary[i];
+            sum += sal[i];
         }
         return simplifyFraction(sum, r-l+1);
     }
@@ -61,7 +59,7 @@ public:
     pair<ll, ll> queryHappiness(int l, int r) {
         ll sum = 0;
         for(int i = l-1; i < r; i++) {
-            sum += happiness[i];
+            sum += hap[i];
         }
         return simplifyFraction(sum, r-l+1);
     }
@@ -74,12 +72,12 @@ int main() {
     int N, Q;
     cin >> N >> Q;
     
-    vector<ll> initial_salary(N);
+    vector<ll> init_sal(N);
     for(int i = 0; i < N; i++) {
-        cin >> initial_salary[i];
+        cin >> init_sal[i];
     }
     
-    Solution sol(N, initial_salary);
+    Solution sol(N, init_sal);
     
     while(Q--) {
         int type, l, r;
@@ -91,8 +89,8 @@ int main() {
             if(type == 0) sol.setSalary(l, r, c);
             else sol.changeSalary(l, r, c);
         } else {
-            auto result = (type == 2) ? sol.querySalary(l, r) : sol.queryHappiness(l, r);
-            cout << result.first << "/" << result.second << "\n";
+            auto res = (type == 2) ? sol.querySalary(l, r) : sol.queryHappiness(l, r);
+            cout << res.first << "/" << res.second << "\n";
         }
     }
     

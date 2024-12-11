@@ -1,16 +1,13 @@
-//Task Score: 50%
-//Did you do more than us committe to it in this repo
-
 #include <iostream>
 #include <vector>
 #include <algorithm>
 #include <functional>
 using namespace std; 
-const int MODULO = 998244353; 
+const int MOD = 998244353; 
  
-inline int addModulo(int x, int y) { 
+inline int addMod(int x, int y) { 
     x += y; 
-    if (x >= MODULO) x -= MODULO; 
+    if (x >= MOD) x -= MOD; 
     return x; 
 } 
  
@@ -18,94 +15,94 @@ int main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(nullptr); 
      
-    int numVariables, numConstraints; 
-    cin >> numVariables >> numConstraints; 
+    int n, m; 
+    cin >> n >> m; 
      
-    if (numConstraints == 0 && numVariables > 0) { 
+    if (m == 0 && n > 0) { 
         cout << "infinity\n"; 
         return 0; 
     } 
      
-    vector<int> lowerBounds(numConstraints), upperBounds(numConstraints); 
-    vector<vector<int>> constraintVariables(numConstraints); 
+    vector<int> lb(m), ub(m); 
+    vector<vector<int>> conVars(m); 
      
-    int maximumValue = 0; 
-    for (int i = 0; i < numConstraints; i++) { 
-        int count; 
-        cin >> lowerBounds[i] >> upperBounds[i] >> count; 
-        maximumValue = max(maximumValue, upperBounds[i]); 
+    int maxVal = 0; 
+    for (int i = 0; i < m; i++) { 
+        int cnt; 
+        cin >> lb[i] >> ub[i] >> cnt; 
+        maxVal = max(maxVal, ub[i]); 
          
-        if (lowerBounds[i] > upperBounds[i]) { 
+        if (lb[i] > ub[i]) { 
             cout << "0\n"; 
             return 0; 
         } 
          
-        constraintVariables[i].resize(count); 
-        for (int j = 0; j < count; j++) { 
-            cin >> constraintVariables[i][j]; 
-            constraintVariables[i][j]--; // Convert to 0-based indexing 
+        conVars[i].resize(cnt); 
+        for (int j = 0; j < cnt; j++) { 
+            cin >> conVars[i][j]; 
+            conVars[i][j]--; 
         } 
     } 
      
-    vector<bool> hasConstraint(numVariables, false); 
-    vector<vector<int>> variableToConstraints(numVariables); 
-    for (int i = 0; i < numConstraints; i++) { 
-        for (int variable : constraintVariables[i]) { 
-            hasConstraint[variable] = true; 
-            variableToConstraints[variable].push_back(i); 
+    vector<bool> hasCon(n, false); 
+    vector<vector<int>> varCon(n); 
+    for (int i = 0; i < m; i++) { 
+        for (int v : conVars[i]) { 
+            hasCon[v] = true; 
+            varCon[v].push_back(i); 
         } 
     } 
      
-    for (int i = 0; i < numVariables; i++) { 
-        if (!hasConstraint[i]) { 
+    for (int i = 0; i < n; i++) { 
+        if (!hasCon[i]) { 
             cout << "infinity\n"; 
             return 0; 
         } 
     } 
      
-    int solutionCount = 0; 
-    vector<int> variableValues(numVariables); 
+    int solCnt = 0; 
+    vector<int> varVals(n); 
      
-    function<void(int)> searchSolutions = [&](int position) { 
-        if (position == numVariables) { 
-            solutionCount = addModulo(solutionCount, 1); 
+    function<void(int)> dfs = [&](int pos) { 
+        if (pos == n) { 
+            solCnt = addMod(solCnt, 1); 
             return; 
         } 
          
-        const auto& currentConstraints = variableToConstraints[position]; 
+        const auto& con = varCon[pos]; 
          
-        for (int value = 0; value <= maximumValue; value++) { 
-            variableValues[position] = value; 
-            bool isValid = true; 
+        for (int v = 0; v <= maxVal; v++) { 
+            varVals[pos] = v; 
+            bool valid = true; 
              
-            for (int constraintIndex : currentConstraints) { 
+            for (int cIdx : con) { 
                 int sum = 0; 
-                bool allVariablesAssigned = true; 
+                bool allAssigned = true; 
                  
-                for (int variable : constraintVariables[constraintIndex]) { 
-                    if (variable > position) { 
-                        allVariablesAssigned = false; 
+                for (int var : conVars[cIdx]) { 
+                    if (var > pos) { 
+                        allAssigned = false; 
                         break; 
                     } 
-                    sum += variableValues[variable]; 
+                    sum += varVals[var]; 
                 } 
                  
-                if (allVariablesAssigned) { 
-                    if (sum < lowerBounds[constraintIndex] || sum > upperBounds[constraintIndex]) { 
-                        isValid = false; 
+                if (allAssigned) { 
+                    if (sum < lb[cIdx] || sum > ub[cIdx]) { 
+                        valid = false; 
                         break; 
                     } 
-                } else if (sum > upperBounds[constraintIndex]) { 
-                    isValid = false; 
+                } else if (sum > ub[cIdx]) { 
+                    valid = false; 
                     break; 
                 } 
             } 
              
-            if (isValid) searchSolutions(position + 1); 
+            if (valid) dfs(pos + 1); 
         } 
     }; 
      
-    searchSolutions(0); 
-    cout << solutionCount << "\n"; 
+    dfs(0); 
+    cout << solCnt << "\n"; 
     return 0; 
 }

@@ -1,5 +1,3 @@
-//Task Score: 20%
-//Did you do more than us committe to it in this repo
 #include <iostream>
 #include <vector>
 #include <string>
@@ -8,103 +6,103 @@
 
 using namespace std;
 
-bool isValidSequenceLength(int length) {
-    return length % 4 == 0 || length % 4 == 1;
+bool isValidLen(int len) {
+    return len % 4 == 0 || len % 4 == 1;
 }
 
-string constructDoubledSequence(int length) {
-    if (!isValidSequenceLength(length)) {
+string buildSeq(int len) {
+    if (!isValidLen(len)) {
         return "-1";
     }
 
-    if (length == 1) {
+    if (len == 1) {
         return "1 1";
     }
 
-    if (length == 4) {
+    if (len == 4) {
         return "1 1 3 4 2 3 2 4";
     }
 
-    if (length == 5) {
+    if (len == 5) {
         return "5 2 4 2 3 5 4 3 1 1";
     }
 
-    if (length == 8) {
+    if (len == 8) {
         return "8 6 4 7 1 1 4 6 8 5 7 2 3 2 5 3";
     }
 
-    if (length == 9) {
+    if (len == 9) {
         return "9 7 8 4 2 6 2 4 7 9 8 6 5 3 1 1 3 5";
     }
 
-    if (length == 12) {
+    if (len == 12) {
         return "12 10 11 7 5 9 2 8 2 5 7 10 12 11 9 8 6 4 1 1 3 4 6 3";
     }
 
-    if (length == 13) {
+    if (len == 13) {
         return "13 11 12 8 6 10 1 1 9 7 6 8 11 13 12 10 7 9 5 2 4 2 3 5 4 3";
     }
 
-    vector<int> sequence(2 * length, 0);
-    vector<bool> isUsed(length + 1, false);
+    vector<int> seq(2 * len, 0);
+    vector<bool> used(len + 1, false);
 
-    auto isValidPlacement = [&](int value, int index1, int index2) {
-        if (index1 < 0 || index2 >= 2 * length || sequence[index1] != 0 || sequence[index2] != 0) {
+    auto validPlace = [&](int val, int i1, int i2) {
+        if (i1 < 0 || i2 >= 2 * len || seq[i1] != 0 || seq[i2] != 0) {
             return false;
         }
-        return index2 - index1 == value;
+        return i2 - i1 == val;
     };
 
-    function<bool(int)> backtrackSequence = [&](int position) {
-        if (position >= 2 * length) {
+    function<bool(int)> backtrack = [&](int pos) {
+        if (pos >= 2 * len) {
             return true;
         }
-        if (sequence[position] != 0) {
-            return backtrackSequence(position + 1);
+        if (seq[pos] != 0) {
+            return backtrack(pos + 1);
         }
 
-        for (int number = length; number >= 1; --number) {
-            if (!isUsed[number] && isValidPlacement(number, position, position + number)) {
-                sequence[position] = number;
-                sequence[position + number] = number;
-                isUsed[number] = true;
+        for (int num = len; num >= 1; --num) {
+            if (!used[num] && validPlace(num, pos, pos + num)) {
+                seq[pos] = num;
+                seq[pos + num] = num;
+                used[num] = true;
 
-                if (backtrackSequence(position + 1)) {
+                if (backtrack(pos + 1)) {
                     return true;
                 }
 
-                sequence[position] = 0;
-                sequence[position + number] = 0;
-                isUsed[number] = false;
+                seq[pos] = 0;
+                seq[pos + num] = 0;
+                used[num] = false;
             }
         }
         return false;
     };
 
-    if (backtrackSequence(0)) {
-        string sequenceStr;
-        for (int value : sequence) {
-            sequenceStr += to_string(value) + " ";
+    if (backtrack(0)) {
+        string res;
+        for (int v : seq) {
+            res += to_string(v) + " ";
         }
-        sequenceStr.pop_back();  // Remove trailing space
-        return sequenceStr;
+        res.pop_back();  
+        return res;
     }
     return "-1";
 }
 
 int main() {
-    int testCases;
-    cin >> testCases;
-    vector<string> outputs;
+    int t;
+    cin >> t;
+    vector<string> out;
 
-    for (int i = 0; i < testCases; ++i) {
-        int sequenceLength;
-        cin >> sequenceLength;
-        outputs.push_back(constructDoubledSequence(sequenceLength));
+    for (int i = 0; i < t; ++i) {
+        int len;
+        cin >> len;
+        out.push_back(buildSeq(len));
     }
 
-    for (const string& output : outputs) {
-        cout << output << endl;
+    for (const string& str : out) {
+        cout << str << endl;
     }
 
     return 0;

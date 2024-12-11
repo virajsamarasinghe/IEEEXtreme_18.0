@@ -1,67 +1,64 @@
-#Task Score: 100%
-#Did you do more than us committe to it in this repo
-def largest_rectangle_area(heights):
-    stack = []
-    max_area = 0
-    N = len(heights)
-    left = [0] * N
-    right = [N] * N
+def lra(h):
+    s = []
+    m = 0
+    N = len(h)
+    l = [0] * N
+    r = [N] * N
 
     for i in range(N):
-        while stack and heights[stack[-1]] >= heights[i]:
-            stack.pop()
-        left[i] = stack[-1] + 1 if stack else 0
-        stack.append(i)
+        while s and h[s[-1]] >= h[i]:
+            s.pop()
+        l[i] = s[-1] + 1 if s else 0
+        s.append(i)
 
-    stack.clear()
+    s.clear()
     for i in range(N - 1, -1, -1):
-        while stack and heights[stack[-1]] >= heights[i]:
-            stack.pop()
-        right[i] = stack[-1] if stack else N
-        stack.append(i)
+        while s and h[s[-1]] >= h[i]:
+            s.pop()
+        r[i] = s[-1] if s else N
+        s.append(i)
 
     for i in range(N):
-        max_area = max(max_area, heights[i] * (right[i] - left[i]))
-    return max_area
+        m = max(m, h[i] * (r[i] - l[i]))
+    return m
 
-def max_rectangle_area_after_one_modification(N, X, A):
-    original_max_area = largest_rectangle_area(A)
+def mra(N, X, A):
+    o = lra(A)
 
-    B = [1 if height >= X else 0 for height in A]
+    B = [1 if a >= X else 0 for a in A]
 
-    left_ones_length = [0] * N
-    length = 0
+    l1 = [0] * N
+    m = 0
     for i in range(N):
         if B[i] == 1:
-            length += 1
+            m += 1
         else:
-            length = 0
-        left_ones_length[i] = length
+            m = 0
+        l1[i] = m
 
-    right_ones_length = [0] * N
-    length = 0
+    l2 = [0] * N
+    m = 0
     for i in range(N - 1, -1, -1):
         if B[i] == 1:
-            length += 1
+            m += 1
         else:
-            length = 0
-        right_ones_length[i] = length
+            m = 0
+        l2[i] = m
 
-    max_modified_area = 0
+    ma = 0
     for i in range(N):
         if A[i] != X:
-            left = left_ones_length[i - 1] if i > 0 else 0
-            right = right_ones_length[i + 1] if i < N - 1 else 0
-            total_length = left + 1 + right
-            area = X * total_length
-            max_modified_area = max(max_modified_area, area)
+            l = l1[i - 1] if i > 0 else 0
+            r = l2[i + 1] if i < N - 1 else 0
+            l += 1
+            area = X * (l + r)
+            ma = max(ma, area)
 
-    max_consecutive_ones = max(right_ones_length)
-    area_with_X = max_consecutive_ones * X
+    m1 = max(l2)
+    area = m1 * X
 
-    final_answer = max(original_max_area, max_modified_area, area_with_X)
-    return final_answer
+    return max(o, ma, area)
 
 N, X = map(int, input().split())
 A = list(map(int, input().split()))
-print(max_rectangle_area_after_one_modification(N, X, A))
+print(mra(N, X, A))

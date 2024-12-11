@@ -1,26 +1,25 @@
 def solve(N, x, A):
-    A_sorted = sorted(A)
+    A.sort()
     
     def is_valid(k):
         for i in range(k, N):
-            if A_sorted[i - k] + x > A_sorted[i]:
+            if A[i - k] + x > A[i]:
                 return False
         return True
 
-    low = 1
-    high = N
-    while low < high:
-        mid = (low + high) // 2
+    lo, hi = 1, N
+    while lo < hi:
+        mid = (lo + hi) // 2
         if is_valid(mid):
-            high = mid
+            hi = mid
         else:
-            low = mid + 1
+            lo = mid + 1
 
-    k = low
+    k = lo
 
     stacks = [[] for _ in range(k)]
     for i in range(N):
-        stacks[i % k].append(A_sorted[i])
+        stacks[i % k].append(A[i])
 
     print(k)
     for stack in stacks:

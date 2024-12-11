@@ -1,66 +1,59 @@
-//Task Score: 25%
-//Did you do more than us committe to it in this repo
-
 #include <iostream>
 #include <vector>
 #include <algorithm>
 
 using namespace std;
 
-long long calculateValidSum(const vector<int>& arr, int maxAllowedSum) {
-    int length = arr.size();
-    long long totalValidSum = 0;
+long long calcValidSum(const vector<int>& a, int maxSum) {
+    int n = a.size();
+    long long totalSum = 0;
     
-    // Process subarrays
-    for (int start = 0; start < length; start++) {
-        int end = start;
-        while (end < length) {
-            int subArrayLength = end - start + 1;
-            bool isValid = true;
+    for (int s = 0; s < n; s++) {
+        int e = s;
+        while (e < n) {
+            int len = e - s + 1;
+            bool valid = true;
 
-            // Check pair sums for even-length subarrays
-            if (subArrayLength % 2 == 0) {
-                int maxPairSum = 0;
-                for (int i = 0; i < subArrayLength / 2; i++) {
-                    maxPairSum = max(maxPairSum, arr[start + i] + arr[end - i]);
+            if (len % 2 == 0) {
+                int maxPair = 0;
+                for (int i = 0; i < len / 2; i++) {
+                    maxPair = max(maxPair, a[s + i] + a[e - i]);
                 }
-                isValid = maxPairSum <= maxAllowedSum;
-            } 
-            // Check pair and single element for odd-length subarrays
-            else {
-                int maxSingleElement = arr[end];
-                int maxPairSum = 0;
-                for (int i = 0; i < (subArrayLength - 1) / 2; i++) {
-                    maxPairSum = max(maxPairSum, arr[start + i] + arr[end - 1 - i]);
+                valid = maxPair <= maxSum;
+            } else {
+                int maxElem = a[e];
+                int maxPair = 0;
+                for (int i = 0; i < (len - 1) / 2; i++) {
+                    maxPair = max(maxPair, a[s + i] + a[e - 1 - i]);
                 }
-                isValid = max(maxSingleElement, maxPairSum) <= maxAllowedSum;
+                valid = max(maxElem, maxPair) <= maxSum;
             }
 
-            if (!isValid) break;
+            if (!valid) break;
 
-            totalValidSum += arr[end] - arr[start];
-            end++;
+            totalSum += a[e] - a[s];
+            e++;
         }
     }
-    return totalValidSum;
+    return totalSum;
 }
 
 int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(nullptr);
     
-    int arraySize, queries;
-    cin >> arraySize >> queries;
+    int n, q;
+    cin >> n >> q;
     
-    vector<int> arr(arraySize);
-    for (int i = 0; i < arraySize; i++) {
-        cin >> arr[i];
+    vector<int> a(n);
+    for (int i = 0; i < n; i++) {
+        cin >> a[i];
     }
     
-    while (queries--) {
-        int maxAllowedSum;
-        cin >> maxAllowedSum;
-        cout << calculateValidSum(arr, maxAllowedSum) << '\n';
+    while (q--) {
+        int maxSum;
+        cin >> maxSum;
+        cout << calcValidSum(a, maxSum) << '\n';
     }
     
     return 0;

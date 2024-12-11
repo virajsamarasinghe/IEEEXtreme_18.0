@@ -2,92 +2,79 @@ import sys
 import csv
 
 def main():
-    events = []
-    csv_reader = csv.reader(sys.stdin, delimiter=',', quotechar='"')
+    evts = []
+    csv_rdr = csv.reader(sys.stdin, delimiter=',', quotechar='"')
     
-    for row in csv_reader:
+    for row in csv_rdr:
         if len(row) != 6:
             continue
-        event_id = row[0].strip()
-        event_title = row[1].strip()
-        acronym = row[2].strip()
-        project_code = row[3].strip()
-        three_digit_code = row[4].strip()
-        record_type = row[5].strip()
+        ev_id, ev_title, acr, proj_code, three_code, rec_type = map(str.strip, row)
 
-        if not acronym:
+        if not acr:
             continue
 
-        event_details = {
-            'Event ID': event_id,
-            'Event Title': event_title,
-            'Acronym': acronym,
-            'Project Code': project_code,
-            '3 Digit Project Code': three_digit_code,
-            'Record Type': record_type,
+        evt = {
+            'ID': ev_id,
+            'Title': ev_title,
+            'Acr': acr,
+            'Proj Code': proj_code,
+            '3-Digit Code': three_code,
+            'Type': rec_type,
         }
-        events.append(event_details)
+        evts.append(evt)
 
-    grouped_events = {}
-    for event in events:
-        event_acronym = event['Acronym']
-        if event_acronym not in grouped_events:
-            grouped_events[event_acronym] = []
-        grouped_events[event_acronym].append(event)
+    grp_evt = {}
+    for evt in evts:
+        acr = evt['Acr']
+        if acr not in grp_evt:
+            grp_evt[acr] = []
+        grp_evt[acr].append(evt)
 
-    organized_output = {}
-    for acronym in grouped_events:
-        event_group = grouped_events[acronym]
-        parent_events = [evt for evt in event_group if evt['Record Type'] == 'Parent Event']
-        child_events = [evt for evt in event_group if evt['Record Type'] == 'IEEE Event']
-       
-        if len(parent_events) != 1:
+    out = {}
+    for acr in grp_evt:
+        grp = grp_evt[acr]
+        parent = [ev for ev in grp if ev['Type'] == 'Parent Event']
+        children = [ev for ev in grp if ev['Type'] == 'IEEE Event']
+        
+        if len(parent) != 1:
             continue
-       
-        parent_event = parent_events[0]
-       
-        if not child_events:
+
+        p_evt = parent[0]
+        if not children:
             continue
-       
-        unique_child_codes = set(child['3 Digit Project Code'] for child in child_events)
-        if len(unique_child_codes) == 1:
-            parent_event['3 Digit Project Code'] = unique_child_codes.pop()
-        else:
-            parent_event['3 Digit Project Code'] = '???'
-       
-        for child in child_events:
-            child['Parent ID'] = parent_event['Event ID']
-       
-        child_events.sort(key=lambda evt: (evt['Event Title'], evt['Event ID']))
-       
-        organized_output[acronym] = {
-            'parent': parent_event,
-            'children': child_events
-        }
+        
+        uniq_codes = set(child['3-Digit Code'] for child in children)
+        p_evt['3-Digit Code'] = uniq_codes.pop() if len(uniq_codes) == 1 else '???'
 
-    for acronym in sorted(organized_output.keys()):
-        group = organized_output[acronym]
-        parent_event = group['parent']
-        child_events = group['children']
-       
-        print_event_details(parent_event)
-       
-        for child in child_events:
-            print_event_details(child, parent_id=child['Parent ID'])
+        for child in children:
+            child['Parent ID'] = p_evt['ID']
+        
+        children.sort(key=lambda e: (e['Title'], e['ID']))
+        
+        out[acr] = {'parent': p_evt, 'children': children}
 
-def print_event_details(event, parent_id=None):
-    output = [
-        event['Event ID'],
-        '"{}"'.format(event['Event Title'].replace('"', '""')),
-        '"{}"'.format(event['Acronym']),
-        event['Project Code'],
-        event['3 Digit Project Code'],
-        '"{}"'.format(event['Record Type']),
+    for acr in sorted(out.keys()):
+        grp = out[acr]
+        p_evt = grp['parent']
+        c_evts = grp['children']
+        
+        print_evt(p_evt)
+        
+        for child in c_evts:
+            print_evt(child, parent_id=child['Parent ID'])
+
+def print_evt(evt, parent_id=None):
+    out = [
+        evt['ID'],
+        '"{}"'.format(evt['Title'].replace('"', '""')),
+        '"{}"'.format(evt['Acr']),
+        evt['Proj Code'],
+        evt['3-Digit Code'],
+        '"{}"'.format(evt['Type']),
     ]
     if parent_id is not None:
-        output.append(parent_id)
-    print(','.join(output))
+        out.append(parent_id)
+    print(','.join(out))
 
 if __name__ == '__main__':
     main()
-#100%marks

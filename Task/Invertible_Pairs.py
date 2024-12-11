@@ -1,40 +1,36 @@
-#Task Score: 55%
-#Did you do more than us committe to it in this repo
-
-def calculate_max_sum(n, values):
-    max_subarray = [0] * n
-    max_subarray[0] = values[0]
-    max_result = max_subarray[0]
+def f(n, v):
+    m = [0] * n
+    m[0] = v[0]
+    r = m[0]
     
     for i in range(1, n):
-        current_val = values[i]
+        c = v[i]
         
         if i % 2 == 1:
-            prev_val = values[i-1]
-            without_flip = max(current_val, max_subarray[i-1] + current_val)
-            flipped_prev = -prev_val
-            flipped_curr = -current_val
+            p = v[i-1]
+            w = max(c, m[i-1] + c)
+            fp = -p
+            fc = -c
             
             if i >= 2:
-                with_flip = max(flipped_curr, max(max_subarray[i-2] + flipped_prev + flipped_curr, flipped_prev + flipped_curr))
+                f2 = max(fc, max(m[i-2] + fp + fc, fp + fc))
             else:
-                with_flip = max(flipped_curr, flipped_prev + flipped_curr)
+                f2 = max(fc, fp + fc)
             
-            max_subarray[i] = max(without_flip, with_flip)
+            m[i] = max(w, f2)
         else:
-            max_subarray[i] = max(current_val, max_subarray[i-1] + current_val)
+            m[i] = max(c, m[i-1] + c)
         
-        max_result = max(max_result, max_subarray[i])
+        r = max(r, m[i])
     
-    return max_result
+    return r
 
 def main():
-    test_cases = int(input())
-    for _ in range(test_cases):
-        num_elements = int(input())
-        values = list(map(int, input().split()))
-        result = calculate_max_sum(num_elements, values)
-        print(result)
+    t = int(input())
+    for _ in range(t):
+        n = int(input())
+        v = list(map(int, input().split()))
+        print(f(n, v))
 
 if __name__ == "__main__":
     main()

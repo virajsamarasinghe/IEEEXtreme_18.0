@@ -5,73 +5,70 @@
 #include <iomanip> 
 using namespace std; 
 
-typedef long long EnormousInt;
-typedef long double GiantFloat;
+typedef long long E;
+typedef long double G;
 
-EnormousInt compute_power_modulo(EnormousInt base, EnormousInt exponent, EnormousInt modulo) { 
-    EnormousInt result = 1; 
-    base %= modulo; 
-    while (exponent > 0) { 
-        if (exponent & 1) 
-            result = result * base % modulo; 
-        base = base * base % modulo; 
-        exponent >>= 1; 
+E pmod(E b, E e, E m) { 
+    E r = 1; 
+    b %= m; 
+    while (e > 0) { 
+        if (e & 1) 
+            r = r * b % m; 
+        b = b * b % m; 
+        e >>= 1; 
     } 
-    return result; 
+    return r; 
 } 
 
-EnormousInt compute_modulo_from_string(const string& number_string, EnormousInt modulo) { 
-    EnormousInt result = 0; 
-    for (char digit : number_string) { 
-        result = (result * 10 + (digit - '0')) % modulo; 
+E mod_from_str(const string& s, E m) { 
+    E r = 0; 
+    for (char d : s) { 
+        r = (r * 10 + (d - '0')) % m; 
     } 
-    return result; 
+    return r; 
 } 
 
 int main() { 
-    string number_string; 
-    cin >> number_string; 
-    int number_length = number_string.size(); 
-    int head_length = min(number_length, 15);
-    string head_string = number_string.substr(0, head_length); 
-    GiantFloat head_value = stold(head_string);
+    string s; 
+    cin >> s; 
+    int n = s.size(); 
+    int h = min(n, 15);
+    string hs = s.substr(0, h); 
+    G hv = stold(hs);
 
-    GiantFloat log_number = log(head_value) + (number_length - head_length) * log(10.0L); 
-    GiantFloat power_approx = log_number / log(3.0L); 
-    EnormousInt power_integer = llround(power_approx); 
+    G ln = log(hv) + (n - h) * log(10.0L); 
+    G p_approx = ln / log(3.0L); 
+    E p_int = llround(p_approx); 
 
-    if (fabsl(power_approx - power_integer) > 1e-6L) { 
+    if (fabsl(p_approx - p_int) > 1e-6L) { 
         cout << -1 << endl; 
         return 0; 
     } 
 
-    vector<EnormousInt> modulo_set = {1000000007LL, 1000000009LL, 1000000021LL}; 
-    vector<EnormousInt> number_mod_results; 
-    for (EnormousInt modulo : modulo_set) { 
-        number_mod_results.push_back(compute_modulo_from_string(number_string, modulo)); 
+    vector<E> ms = {1000000007LL, 1000000009LL, 1000000021LL}; 
+    vector<E> nr; 
+    for (E m : ms) { 
+        nr.push_back(mod_from_str(s, m)); 
     } 
 
-    vector<EnormousInt> power_mod_results; 
-    for (EnormousInt modulo : modulo_set) { 
-        power_mod_results.push_back(compute_power_modulo(3LL, power_integer, modulo)); 
+    vector<E> pr; 
+    for (E m : ms) { 
+        pr.push_back(pmod(3LL, p_int, m)); 
     } 
 
-    bool match_found = true; 
-    for (size_t index = 0; index < modulo_set.size(); ++index) { 
-        if (number_mod_results[index] != power_mod_results[index]) { 
-            match_found = false; 
+    bool match = true; 
+    for (size_t i = 0; i < ms.size(); ++i) { 
+        if (nr[i] != pr[i]) { 
+            match = false; 
             break; 
         } 
     } 
 
-    if (match_found) { 
-        cout << power_integer << endl; 
+    if (match) { 
+        cout << p_int << endl; 
     } else { 
         cout << -1 << endl; 
     } 
 
     return 0; 
 }
-
-
-//100% marks

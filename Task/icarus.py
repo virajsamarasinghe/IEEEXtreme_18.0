@@ -1,50 +1,36 @@
-def sprout_shrubbery(spell_cast):
-    max_shrubs = 2 * len(spell_cast)
-    twig_left = [0] * (max_shrubs + 1)
-    twig_right = [0] * (max_shrubs + 1)
-    for pixie_dust in range(1, max_shrubs + 1):
-        twig_left[pixie_dust] = 2 * pixie_dust if 2 * pixie_dust <= max_shrubs else 0
-        twig_right[pixie_dust] = 2 * pixie_dust + 1 if 2 * pixie_dust + 1 <= max_shrubs else 0
-    return twig_left, twig_right, max_shrubs
+def sprout(s):
+    m = 2 * len(s)
+    l, r = [0] * (m + 1), [0] * (m + 1)
+    for p in range(1, m + 1):
+        l[p] = 2 * p if 2 * p <= m else 0
+        r[p] = 2 * p + 1 if 2 * p + 1 <= m else 0
+    return l, r, m
 
-def dance_through_forest(spell_cast, start_shrub, twig_left, twig_right):
-    enchanted_shrub = start_shrub
-    shrub_footprints = set()
-    shrub_footprints.add(enchanted_shrub)
-    for step in spell_cast:
-        if step == 'L':
-            next_shrub = twig_left[enchanted_shrub]
-        elif step == 'R':
-            next_shrub = twig_right[enchanted_shrub]
-        elif step == 'U':
-            next_shrub = enchanted_shrub // 2
-        else:
-            continue
-        if next_shrub != 0:
-            enchanted_shrub = next_shrub
-            shrub_footprints.add(enchanted_shrub)
-    return shrub_footprints
+def dance(s, start, l, r):
+    p = start
+    f = {p}
+    for t in s:
+        if t == 'L': p = l[p]
+        elif t == 'R': p = r[p]
+        elif t == 'U': p = p // 2
+        if p != 0: f.add(p)
+    return f
 
-def grand_adventure():
+def main():
     import sys
-    input_spell = sys.stdin.read
-    spell_cast = input_spell().strip()
-    twig_left, twig_right, forest_shrubs = sprout_shrubbery(spell_cast)
-    magical_start = 2
-    shrub_footprints = dance_through_forest(spell_cast, magical_start, twig_left, twig_right)
-    for final_shrub in range(1, forest_shrubs + 1):
-        if final_shrub not in shrub_footprints:
+    s = sys.stdin.read().strip()
+    l, r, m = sprout(s)
+    start = 2
+    f = dance(s, start, l, r)
+    for i in range(1, m + 1):
+        if i not in f:
             break
     else:
         print(-1)
         return
-    print(forest_shrubs, magical_start, final_shrub)
-    for gnome_shrub in range(1, forest_shrubs + 1):
-        print(twig_left[gnome_shrub], twig_right[gnome_shrub])
+    print(m, start, i)
+    for i in range(1, m + 1):
+        print(l[i], r[i])
 
 if __name__ == "__main__":
-    grand_adventure()
-    
-    
-#100% marks    
-    
+    main()
